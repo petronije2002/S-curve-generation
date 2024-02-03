@@ -2,7 +2,7 @@
 #include "esp_heap_caps.h"
 
 #define ACCELERATION_POINTS 100
-#define CONSTANT_VELOCITY_POINTS 10
+#define CONSTANT_VELOCITY_POINTS 20
 #define DECELERATION_POINTS 100
 
 int TOTAL_POINTS = ACCELERATION_POINTS + CONSTANT_VELOCITY_POINTS + DECELERATION_POINTS;
@@ -17,7 +17,7 @@ void sendSerialData(float x[], float y[], float angle[], int pointsToGenerate)
     Serial.print('\t');
     Serial.print(y[i], 4);
     Serial.print('\t');
-    Serial.println(angle[i], 4);
+    Serial.println(angle[i], 2);
     Serial.print('\t');
   }
 }
@@ -50,10 +50,6 @@ void generateVelocityProfile(float targetVelocity, float sTimeDuration, float ta
   int accelerationPoints = ACCELERATION_POINTS;
   int constantVelocityPoints = CONSTANT_VELOCITY_POINTS;
   int decelerationPoints = DECELERATION_POINTS;
-
-  float normalizationFactor = targetAngle / (ACCELERATION_POINTS + CONSTANT_VELOCITY_POINTS + DECELERATION_POINTS);
-
-
 
 
   // Check if the total number of points is greater than the sum of points for all segments
