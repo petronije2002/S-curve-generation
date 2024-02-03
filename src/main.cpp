@@ -2,7 +2,7 @@
 #include "esp_heap_caps.h"
 
 #define ACCELERATION_POINTS 100
-#define CONSTANT_VELOCITY_POINTS 20
+#define CONSTANT_VELOCITY_POINTS 300
 #define DECELERATION_POINTS 100
 
 int TOTAL_POINTS = ACCELERATION_POINTS + CONSTANT_VELOCITY_POINTS + DECELERATION_POINTS;
@@ -17,7 +17,7 @@ void sendSerialData(float x[], float y[], float angle[], int pointsToGenerate)
     Serial.print('\t');
     Serial.print(y[i], 4);
     Serial.print('\t');
-    Serial.println(angle[i], 2);
+    Serial.println(angle[i], 3);
     Serial.print('\t');
   }
 }
@@ -39,7 +39,7 @@ void generateVelocityProfile(float targetVelocity, float sTimeDuration, float ta
   
 
 
- float angleAtSigmoid = sTimeDuration  + (1 / aScaled) * log(1 + exp(-aScaled * (sTimeDuration - c)));
+  float angleAtSigmoid = sTimeDuration  + (1 / aScaled) * log(1 + exp(-aScaled * (sTimeDuration - c)));
 
   float totalAngleAchieved = angleAtSigmoid * 2 + (totalTime - 2*sTimeDuration)*targetVelocity; 
 
@@ -56,7 +56,7 @@ void generateVelocityProfile(float targetVelocity, float sTimeDuration, float ta
   if (totalPoints > accelerationPoints + constantVelocityPoints + decelerationPoints)
   {
     // Adjust the number of points for the constant velocity part to ensure the total matches
-    constantVelocityPoints = totalPoints - accelerationPoints - decelerationPoints - 1;
+    constantVelocityPoints = totalPoints - accelerationPoints - decelerationPoints ;
   }
 
   float x[NUM_POINTS_PER_CALL];
@@ -74,9 +74,9 @@ void generateVelocityProfile(float targetVelocity, float sTimeDuration, float ta
     // Acceleration, Constant Velocity, and Deceleration combined in one loop
     for (int i = 0; i < pointsToGenerate; i++)
     {
-      x[i] = currentIndex * totalTime / (totalPoints - 1);
+      x[i] = currentIndex * totalTime / (totalPoints );
       float t1 = 1 / (1 + exp(-aScaled * (x[i] - c)));
-      float t2 = 1 / (1 + exp(-aScaled * (x[i] - (totalTime - c))));
+      float t2 = 1 / (1 + exp(-aScaled*1.01 * (x[i] - (totalTime - c))));
 
       // Acceleration
       if (currentIndex < accelerationPoints)
@@ -88,7 +88,7 @@ void generateVelocityProfile(float targetVelocity, float sTimeDuration, float ta
 
       // Deceleration
       else
-        y[i] = fabs(t1 - t2) * targetVelocity;
+        y[i] = fabs(t2 - t1) * targetVelocity;
 
       // Calculate angle
       
