@@ -108,17 +108,81 @@ void generateVelocityProfile(float targetVelocity, float sTimeDuration, float ta
   Serial.end(); // Close the serial port
 }
 
+float a = 10;
+float c = 40;
+float c2 = 0.15;
+
+float acceleration_time = c2 *2;
+float deceleration_time = acceleration_time;
+
+
+// Define the sigmoid function
+float sigmoid(float x, float a, float c, float c2) {
+    return a / (1 + exp(-c * (x - c2)));
+}
+
+
+float trapezoidal_rule_integral(float x, float a, float c, float c2, int n) {
+    float integral = 0;
+    float h = x / n;
+
+    for (int i = 0; i < n; i++) {
+        float xi = i * h;
+        float xi1 = (i + 1) * h;
+        integral += (sigmoid(xi, a, c, c2) + sigmoid(xi1, a, c, c2)) * h / 2;
+    }
+
+    return integral;
+}
+
+
+
+
 void setup()
 {
   Serial.begin(115200);
   // Example usage with a total of 120 points
-  generateVelocityProfile(2, 0.3, 2.5, TOTAL_POINTS);
+  // generateVelocityProfile(2, 0.3, 2.5, TOTAL_POINTS);
 
   // Rest of your setup code
 }
 
-void loop()
-{
-  // Your main loop codesxaxas
-  //dssfdfsdfs
+// Define the control loop
+void loop() {
+    float t = 0;
+    float time_interval = 0.1;
+    float current_angle = 0;
+    float target_angle = 100;
+    float max_velocity = 10;
+    int n = 1000;
+
+    while (t < acceleration_time) {
+        float v_cmd = max_velocity * sigmoid(t, a, c, c2);
+        current_angle += trapezoidal_rule_integral(time_interval, a, c, c2, n);
+        t += time_interval;
+        // set_motor_speed(v_cmd);
+        // set_motor_position(current_angle);
+        delay(time_interval * 1000); // Convert to milliseconds
+    }
+
+    while (t < acceleration_time + deceleration_time) {
+        float v_cmd = max_velocity * sigmoid(t - acceleration_time, a, c, c2);
+        current_angle += trapezoidal_rule_integral(time_interval, a, c, c2, n);
+        t += time_interval;
+        // set_motor_speed(v_cmd);
+        // set_motor_position(current_angle);
+        delay(time_interval * 1000); // Convert to milliseconds
+    }
+
+    while (current_angle < target_angle) {
+        float v_cmd = max_velocity * sigmoid(current_angle / max_velocity, a, c, c2);
+        current_angle += trapezoidal_rule_integral(time_interval, a, c, c2, n);
+        // set_motor_speed(v_cmd);
+        // set_motor_position(current_angle);
+        delay(time_interval * 1000); // Convert to milliseconds
+    }
+
+    // Stop the motor when it reaches the target angle
+    // set_motor_speed(0);
 }
+
