@@ -1,0 +1,12 @@
+{
+    "name": "YourLibraryName",
+    "version": "1.0.0",
+    "author": "Your Name",
+    "maintainer": "Your Email Address",
+    "sentence": "A short description of your library",
+    "paragraph": "More detailed information about your library",
+    "category": "Category",
+    "url": "https://github.com/yourusername/yourlibrary",
+    "architectures": "avr"
+  }
+  
