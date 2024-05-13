@@ -74,7 +74,7 @@ void loop()
   if (constVelocity_time < 0)
   {
 
-    max_velocity = 2 * (acceleration_time+0.1) / angleToGo;
+    max_velocity = 2 * (acceleration_time) / angleToGo;
 
     constVelocity_time = 0;
   }
