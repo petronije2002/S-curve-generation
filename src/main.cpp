@@ -86,7 +86,11 @@ struct AngleVelocityPairTable
 };
 // AngleVelocityPairTable lookupTable[num_values];
 
-AngleVelocityPairTable* lookupTable;
+// AngleVelocityPairTable* lookupTable;
+
+
+AngleVelocityPairTable* lookupTable = nullptr;
+
 
 
 struct AngleVelocityPair
@@ -105,12 +109,12 @@ AngleVelocityPair result(1,1);
 float calculatedCommandVelocity(float &t, float &max_velocity);
 float calculateDesiredPositionAtT(float &current_time, float prevVel, float &step_size_ad);
 
-AngleVelocityPair generateAngleAndVelocityValues1(float angleToGo, float commanded_velocity);
 
 
 
 
-AngleVelocityPair generateAngleAndVelocityValues(float angleToGo, float commanded_velocity)
+// AngleVelocityPair 
+void generateAngleAndVelocityValues(float angleToGo, float commanded_velocity)
 {
 
   float start_time = micros();
@@ -136,10 +140,34 @@ AngleVelocityPair generateAngleAndVelocityValues(float angleToGo, float commande
 
     num_const_segments = 0;
 
+    Serial.println("Test 0");
+
+    // if (lookupTable != nullptr)
+    // {
+    //     // Delete the existing lookupTable
+
+    //     Serial.print("TEST!!!");
+    //     delete[] lookupTable;
+    //     lookupTable = nullptr;
+    // }
+
+
+
+  result.angle_values.clear();
+  result.velocity_values.clear();
+
+Serial.println("Test 1");
+
+
    lookupTable = new AngleVelocityPairTable[ 2* num_accel_segments -1];
+
+   Serial.println("Test 2");
+
 
    result.angle_values.resize(2* num_accel_segments+1 , 2* num_accel_segments+1 );
    result.velocity_values.resize(2* num_accel_segments+1 , 2* num_accel_segments+1 );
+
+   Serial.println("Test 1");
 
   }else{
 
@@ -150,6 +178,8 @@ AngleVelocityPair generateAngleAndVelocityValues(float angleToGo, float commande
 
    result.angle_values.resize(num_values+1 , num_values +1);
    result.velocity_values.resize(num_values +1 , num_values +1);
+
+
   }
 
   float current_time = 0;
@@ -279,7 +309,7 @@ AngleVelocityPair generateAngleAndVelocityValues(float angleToGo, float commande
 
    
 
-  return result;
+  // return result;
 }
 
 SPISettings spiSettings(1000000, MSBFIRST, SPI_MODE1);
@@ -406,6 +436,13 @@ void setup()
   mcpwm_start(MCPWM_UNIT_0, MCPWM_TIMER_2);
 
   MCPWM0.int_ena.timer0_tez_int_ena = 1;
+
+
+  // Lookup table initialization
+  lookupTable = new AngleVelocityPairTable[num_values - 1];
+
+
+
 }
 
 float targetAngle = 0;
@@ -458,8 +495,17 @@ float getInterpolatedVelocity(float angle) {
 }
 
 
-void sendLookupTableToSerial(int num_values) {
-    for (int i = 0; i < num_values-1; i++) {
+void sendLookupTableToSerial() {
+
+  int numRows = sizeof(lookupTable->angle) / sizeof(lookupTable[0]);
+
+  Serial.print("numberOfrows");
+
+  Serial.println(numRows);
+
+    for (int i = 0; i < numRows; i++) {
+
+
         // Send angle and velocity for each row
         Serial.print("Angle: ");
         Serial.print(lookupTable[i].angle,5);
@@ -520,7 +566,7 @@ void loop()
 
           generateAngleAndVelocityValues(targetAngle, targetVelocity);
 
-          sendLookupTableToSerial(num_values +1);
+          sendLookupTableToSerial();
           // Serial.println();
           // Serial.print("Interpolated at 0.011: ");
           // Serial.print(getInterpolatedVelocity(0.011));
