@@ -566,7 +566,7 @@ void loop()
 
           generateAngleAndVelocityValues(targetAngle, targetVelocity);
 
-          sendLookupTableToSerial();
+          sendLookupTableToSerial(); 
           // Serial.println();
           // Serial.print("Interpolated at 0.011: ");
           // Serial.print(getInterpolatedVelocity(0.011));

@@ -1,0 +1,12 @@
+{
+    "name": "Custom controller library",
+    "version": "1.0.0",
+    "author": "Petar Jovanovic",
+    "maintainer": "petronije2002@gmail.com",
+    "sentence": "This is a controller class......",
+    "paragraph": "More detailed information about your library",
+    "category": "Category",
+    "url": "https://github.com/yourusername/yourlibrary",
+    "architectures": "ESP32"
+  }
+  
